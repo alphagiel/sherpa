@@ -7,8 +7,8 @@ Use any AI model to guide you on any webpage — describe what you're looking fo
 Watch how Sherpa works in action:
 
 <video width="600" controls>
-  <source src="demo.mov" type="video/quicktime">
-  Your browser doesn't support embedded videos. <a href="demo.mov">Download the demo</a>
+  <source src="demo.mp4" type="video/mp4">
+  Your browser doesn't support embedded videos. <a href="demo.mp4">Download the demo</a>
 </video>
 
 ## Features
