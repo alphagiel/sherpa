@@ -6,7 +6,10 @@ Use any AI model to guide you on any webpage — describe what you're looking fo
 
 Watch how Sherpa works in action:
 
-[![Sherpa Demo](https://img.shields.io/badge/Watch%20Demo-Video-blue)](demo.mov)
+<video width="600" controls>
+  <source src="demo.mov" type="video/quicktime">
+  Your browser doesn't support embedded videos. <a href="demo.mov">Download the demo</a>
+</video>
 
 ## Features
 
