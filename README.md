@@ -4,7 +4,9 @@ Use any AI model to guide you on any webpage — describe what you're looking fo
 
 ## Demo
 
-![Sherpa Demo](file:///Users/alphagiel/Desktop/Screen%20Recording%202026-06-22%20at%2011.11.49%20AM.mov)
+Watch how Sherpa works in action:
+
+[![Sherpa Demo](https://img.shields.io/badge/Watch%20Demo-Video-blue)](demo.mov)
 
 ## Features
 
