@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Sherpa",
   "version": "1.0.0",
-  "description": "Ask Claude to guide you on any webpage — it sees your screen and marks exactly where to click.",
+  "description": "Get AI guidance on any webpage — your AI assistant sees your screen and marks exactly where to click.",
   "permissions": [
     "tabs",
     "activeTab",
