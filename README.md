@@ -1,6 +1,10 @@
 # Sherpa — AI-Powered Web Navigation
 
-Ask Claude, GPT-4o, or Gemini where to click on any webpage, and get visual markers pointing to exactly where you need to go.
+Use any AI model to guide you on any webpage — describe what you're looking for, and get visual markers pointing to exactly where to click.
+
+## Demo
+
+![Sherpa Demo](file:///Users/alphagiel/Desktop/Screen%20Recording%202026-06-22%20at%2011.11.49%20AM.mov)
 
 ## Features
 
@@ -98,12 +102,97 @@ All models support the same core features. Choose based on your needs:
 
 ## Architecture
 
-- **`manifest.json`** — Chrome extension configuration
-- **`src/background.js`** — Service worker; handles messaging and marker injection
-- **`src/panel.js`** — Side panel UI and API routing
-- **`src/panel.html`** — Panel interface
-- **`src/content.js`** — Page overlay for drawing markers
-- **`src/overlay.css`** — Marker styles
+Sherpa runs on a three-part model: **capture → send → mark**
+
+### File Structure
+
+```
+sherpa/
+├── manifest.json              # Extension config & permissions
+├── src/
+│   ├── background.js          # Service worker (messaging hub)
+│   ├── content.js             # Page injector (draws markers)
+│   ├── panel.html             # Side panel UI
+│   ├── panel.js               # Panel logic & API routing
+│   └── overlay.css            # Marker styling
+└── icons/                     # Extension icons
+```
+
+### How It Works
+
+1. **Capture** (`content.js` → `background.js`)
+   - User clicks "Capture" or presses `C`
+   - Content script screenshots the page and sends to background
+   - Background stores screenshot in memory
+
+2. **Send** (`panel.js` → AI Provider)
+   - User types question in side panel
+   - Panel.js sends screenshot + prompt to chosen API (Claude, GPT-4o, Gemini)
+   - API response returns element descriptions or coordinates
+
+3. **Mark** (`background.js` → `content.js`)
+   - Background processes AI response and calculates marker positions
+   - Content script draws red circles on the actual page overlays
+   - User sees exactly where to click
+
+### Message Flow
+
+```
+content.js (page) 
+   ↓ (screenshot captured)
+background.js (service worker)
+   ↓ (stores state)
+panel.js (side panel)
+   ↓ (user question + API key)
+AI Provider API
+   ↓ (marked coordinates)
+background.js
+   ↓ (inject positions)
+content.js (draws markers)
+```
+
+### Adding a New Feature
+
+Want to extend Sherpa? Here's the typical flow:
+
+1. **In `panel.html`** — Add UI button/input
+2. **In `panel.js`** — Handle the user interaction
+3. **Send message to background** — `chrome.runtime.sendMessage({action: 'yourAction', data: ...})`
+4. **In `background.js`** — Add a listener for your action
+5. **In `content.js`** — If you need to modify the page, add logic there
+
+#### Example: Add a "Copy Marker Coordinates" Button
+
+**panel.html:**
+```html
+<button id="copyCoords">Copy Coordinates</button>
+```
+
+**panel.js:**
+```javascript
+document.getElementById('copyCoords').addEventListener('click', () => {
+  chrome.runtime.sendMessage({action: 'copyCoords'}, (response) => {
+    // handle response
+  });
+});
+```
+
+**background.js:**
+```javascript
+chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+  if (req.action === 'copyCoords') {
+    // Logic to copy current marker coords
+    sendResponse({success: true});
+  }
+});
+```
+
+### Common Tasks
+
+- **Add a new API provider** — Extend `panel.js` routing, add new fetch call
+- **Change marker style** — Edit `overlay.css`
+- **Modify capture behavior** — Edit `content.js` screenshot logic
+- **Add keyboard shortcut** — Add to `manifest.json` commands section
 
 ## Troubleshooting
 
@@ -127,7 +216,39 @@ All models support the same core features. Choose based on your needs:
 
 ## Contributing
 
-Found a bug? Want to improve the marker accuracy? Open an issue or submit a PR!
+We welcome feature improvements, bug fixes, and new AI providers. Here's how to contribute:
+
+### Before You Start
+
+- **Check existing issues** — Don't duplicate work
+- **Small features are easier** — Start with marker styling, UI tweaks, or new keyboard shortcuts
+- **Ask in issues first** — For big changes, open an issue to discuss approach
+
+### Feature Checklist
+
+Adding a new feature? Make sure to:
+
+- [ ] Update `manifest.json` if adding new permissions
+- [ ] Add UI in `panel.html` (if user-facing)
+- [ ] Add logic in appropriate file (`panel.js` for UI, `content.js` for page interaction, `background.js` for state)
+- [ ] Test with multiple AI providers if your feature uses API calls
+- [ ] Update README if adding a new feature or changing behavior
+- [ ] Keep code simple — no external dependencies if avoidable
+
+### Testing Your Changes
+
+1. Make your changes
+2. Go to `chrome://extensions`
+3. Click the reload icon on Sherpa
+4. Test on a real website
+
+### PR Tips
+
+- One feature per PR
+- Descriptive commit messages ("Add dark mode for markers" not "fix stuff")
+- Test before submitting
+
+Questions? Open an issue!
 
 ## License
 
