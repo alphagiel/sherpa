@@ -77,11 +77,11 @@
       background: var(--border); border-radius: 4px; padding: 1px 5px;
     }
 
-    #clear-btn {
+    #clear-btn, #toggle-markers-btn {
       background: none; border: 1px solid var(--border); color: var(--muted);
       border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
-    #clear-btn:hover { border-color: var(--accent); color: var(--accent); }
+    #clear-btn:hover, #toggle-markers-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* ── Setup screen ── */
     #setup-screen {
@@ -225,6 +225,7 @@
     }
     #user-input:focus { border-color: var(--accent); }
     #user-input::placeholder { color: var(--muted); }
+    #user-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
     #send-btn {
       background: var(--accent); border: none; border-radius: var(--radius);
@@ -272,6 +273,7 @@
         </div>
       </div>
 
+      <button id="toggle-markers-btn" style="display:none">Hide markers</button>
       <button id="clear-btn">Clear markers</button>
     </div>
 
@@ -288,8 +290,7 @@
     <!-- Input -->
     <div id="input-area" style="display:none">
       <div id="screenshot-bar">
-        <button id="capture-mode-toggle" style="background: var(--border); border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;">⊙ Capture Mode: OFF</button>
-        <button id="capture-btn" title="Or press C key while hovering" style="margin-left: 8px;">📷 Capture screen</button>
+        <button id="capture-btn">📷 Capture screen</button>
         <img id="screenshot-thumb" alt="screenshot" />
         <span id="screenshot-label">Screen attached</span>
         <button id="remove-screenshot" title="Remove">✕</button>
@@ -298,7 +299,7 @@
         <textarea id="user-input" rows="2" placeholder="Ask Sherpa about this page…"></textarea>
         <button id="send-btn">↑</button>
       </div>
-      <div id="hint"><kbd>C</kbd> to capture • <kbd>Enter</kbd> to send • <kbd>Shift+Enter</kbd> for new line</div>
+      <div id="hint"><kbd>Enter</kbd> to send • <kbd>Shift+Enter</kbd> for new line</div>
     </div>
 
     <!-- Key entry modal (for switching providers) -->
