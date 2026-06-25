@@ -22,7 +22,6 @@ let screenshotDataUrl = null;
 let screenshotViewport = null; // { width, height } at capture time
 let conversationHistory = [];
 let pendingModelSwitch = null; // { modelId, provider } waiting for key entry
-let captureMode = false; // whether C key is enabled for capturing
 
 // ── DOM refs ────────────────────────────────────────────────
 const setupScreen    = document.getElementById('setup-screen');
@@ -37,8 +36,9 @@ const screenshotLabel= document.getElementById('screenshot-label');
 const removeScreenBtn= document.getElementById('remove-screenshot');
 const userInput      = document.getElementById('user-input');
 const sendBtn        = document.getElementById('send-btn');
-const clearBtn       = document.getElementById('clear-btn');
-const captureModeToggle = document.getElementById('capture-mode-toggle');
+const clearBtn          = document.getElementById('clear-btn');
+const toggleMarkersBtn  = document.getElementById('toggle-markers-btn');
+let markersVisible = true;
 
 const modelBtn       = document.getElementById('model-btn');
 const modelDropdown  = document.getElementById('model-dropdown');
@@ -81,6 +81,20 @@ function showChatUI() {
   setupScreen.style.display = 'none';
   messagesEl.style.display = 'flex';
   inputArea.style.display = 'flex';
+  lockInput();
+}
+
+function lockInput() {
+  userInput.disabled = true;
+  userInput.placeholder = 'Capture your screen first…';
+  sendBtn.disabled = true;
+}
+
+function unlockInput() {
+  userInput.disabled = false;
+  userInput.placeholder = 'Ask Sherpa about this page…';
+  sendBtn.disabled = false;
+  userInput.focus();
 }
 
 // ── Setup screen save ────────────────────────────────────────
@@ -168,9 +182,18 @@ keyModalCancel.addEventListener('click', () => {
   pendingModelSwitch = null;
 });
 
+// ── Marker visibility toggle ─────────────────────────────────
+toggleMarkersBtn.addEventListener('click', () => {
+  markersVisible = !markersVisible;
+  toggleMarkersBtn.textContent = markersVisible ? 'Hide markers' : 'Show markers';
+  chrome.runtime.sendMessage({ type: 'TOGGLE_MARKERS_VISIBILITY', visible: markersVisible });
+});
+
 // ── Clear markers ────────────────────────────────────────────
 clearBtn.addEventListener('click', () => {
   chrome.runtime.sendMessage({ type: 'CLEAR_MARKERS' });
+  toggleMarkersBtn.style.display = 'none';
+  markersVisible = true;
 });
 
 // ── Warning dialog ────────────────────────────────────────
@@ -218,6 +241,7 @@ captureBtn.addEventListener('click', () => {
           screenshotThumb.style.display = 'block';
           screenshotLabel.style.display = 'inline';
           removeScreenBtn.style.display = 'inline';
+          unlockInput();
         } else {
           appendSystemMessage("Couldn't capture screen. Make sure you're on a normal webpage.");
         }
@@ -229,23 +253,6 @@ captureBtn.addEventListener('click', () => {
 
 removeScreenBtn.addEventListener('click', clearScreenshot);
 
-// ── Capture mode toggle ───────────────────────────────────
-captureModeToggle.addEventListener('click', () => {
-  captureMode = !captureMode;
-  captureModeToggle.style.background = captureMode ? 'var(--accent)' : 'var(--border)';
-  captureModeToggle.style.color = captureMode ? '#fff' : 'var(--muted)';
-  captureModeToggle.style.borderColor = captureMode ? 'var(--accent)' : 'var(--border)';
-  captureModeToggle.textContent = captureMode ? '◉ Capture Mode: ON' : '⊙ Capture Mode: OFF';
-});
-
-// Keyboard shortcut for capture: 'c' key (only when capture mode is ON)
-document.addEventListener('keydown', (e) => {
-  // Only if 'c' is pressed, capture mode is on, and not typing in textarea
-  if (e.key === 'c' && captureMode && document.activeElement !== userInput) {
-    e.preventDefault();
-    captureBtn.click();
-  }
-});
 
 function clearScreenshot() {
   screenshotDataUrl = null;
@@ -254,6 +261,7 @@ function clearScreenshot() {
   screenshotLabel.style.display = 'none';
   removeScreenBtn.style.display = 'none';
   screenshotThumb.src = '';
+  lockInput();
 }
 
 // ── Send ─────────────────────────────────────────────────────
@@ -299,6 +307,10 @@ async function handleSend() {
         markers,
         viewport: screenshotViewport
       });
+      // Show the toggle button and reset its state for this new set of markers
+      markersVisible = true;
+      toggleMarkersBtn.textContent = 'Hide markers';
+      toggleMarkersBtn.style.display = 'inline-block';
     } else {
       console.error('Sherpa: NO MARKERS FOUND in response');
       console.error('Response length:', reply.length);

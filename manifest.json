@@ -7,8 +7,7 @@
     "tabs",
     "activeTab",
     "scripting",
-    "storage",
-    "sidePanel"
+    "storage"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -23,11 +22,12 @@
       "css": ["src/overlay.css"]
     }
   ],
-  "side_panel": {
-    "default_path": "src/panel.html"
-  },
+  "web_accessible_resources": [{
+    "resources": ["src/panel.html", "src/panel.js"],
+    "matches": ["<all_urls>"]
+  }],
   "action": {
-    "default_title": "Open Sherpa",
+    "default_title": "Toggle Sherpa",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
